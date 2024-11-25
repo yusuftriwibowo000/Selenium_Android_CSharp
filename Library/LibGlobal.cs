@@ -1,205 +1,261 @@
 ﻿using OpenQA.Selenium;
 using SeleniumNew;
 using LibraryPDF;
-using LibraryExcel;
-using DocumentFormat.OpenXml.Bibliography;
 using OpenQA.Selenium.Appium.Android;
+using Repository_Dashboard;
+using LibraryExcel;
+using OpenQA.Selenium.Appium.MultiTouch;
 
 namespace GlobalLibrary
 {
     public class LibGlobal
     {
-        public static void openBrowser()
+        private static AndroidDriver driver = SingletonDriver.GetDriver();
+        //Akses Menu Studies
+        public static void AksesMenuStudies(string excelFilePath, string excelSheetName)
         {
-            IWebDriver driver = SingletonDriver.GetDriver();
-            driver.Navigate().GoToUrl(LibExcel.GetDataExcel(LibPDF.globalExcelFilePath, "URL", "Global"));
-            Thread.Sleep(1000);
-            driver.Manage().Window.Maximize();
-            Thread.Sleep(2000);
-        }
-
-        public static void Login(string excelPath, string excelSheet)
-        {
-            IWebDriver driver = SingletonDriver.GetDriver();
-            // Objek yang ada di Home Page Travelio
-            IWebElement modalIklan = driver.FindElement(By.XPath("//div[@id='tpmModal']"));
-            IWebElement modalClose = driver.FindElement(By.XPath("//i[@class='fa fa-close fa-lg close padding15']"));
-            IWebElement logoTravelio = driver.FindElement(By.XPath("//div[@id='menu-wrapper']/div/a[@class='navbar-brand']"));
-            IWebElement menuTravelio = driver.FindElement(By.XPath("//*[@id='menu-wrapper']"));
-            IWebElement btnLogin = driver.FindElement(By.XPath("//*[@id='loginBtn']"));
-
-            // Objek yang ada di Modal Login Page
-            IWebElement tabMasuk = driver.FindElement(By.XPath("//*[@id='login-modal-sign-in-tab']"));
-            IWebElement inputUsername = driver.FindElement(By.XPath("//input[@id='login-email']"));
-            IWebElement inputPassword = driver.FindElement(By.XPath("//input[@id='login-password']"));
-            IWebElement btnMasuk = driver.FindElement(By.XPath("//button[@id='login-modal-btn']"));
-
-            string username = LibExcel.GetDataExcel(excelPath, "USERNAME", excelSheet);
-            string password = LibExcel.GetDataExcel(excelPath, "PASSWORD", excelSheet);
-            string greet = LibExcel.GetDataExcel(excelPath, "NAME", excelSheet);
-
-            // Jika muncul popup iklan
-            if (modalIklan.Displayed)
+            //AndroidDriver driver = SingletonDriver.GetDriver();
+            try
             {
-                LibPDF.CaptureScreen("Tutup Popup Iklan Travelio", "Done");
-                modalClose.Click();
-                Thread.Sleep(2000);
-            }
-            else
-            {
-                Console.WriteLine("Popup Iklan tidak ada di page");
-            }
+                IWebElement labelFlutter = driver.FindElement(By.XPath(repoDashboard.labelFlutter));
+                IWebElement btnToogleDashboard = driver.FindElement(By.XPath(repoDashboard.btnToogleDashboard));
 
-            if (logoTravelio.Displayed && menuTravelio.Displayed && btnLogin.Displayed)
-            {
-                LibPDF.CaptureScreen("Berhasil Masuk Beranda Travelio", "Passed");
-                // 'Btn Login' di home page
-                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", btnLogin);
-                Thread.Sleep(5000);
-                if (tabMasuk.Displayed)
+                if (labelFlutter != null && btnToogleDashboard != null) //validasi berhasil launching app
                 {
-                    tabMasuk.Click();
-                    if (inputUsername.Displayed && inputPassword.Displayed)
+                    LibPDF.CaptureScreen("Berhasil Launching Aplikasi Gallery", "Passed");
+                    IWebElement menuStudies = driver.FindElement(By.XPath(repoDashboard.menuStudies));
+                    if (menuStudies != null)
                     {
-                        LibPDF.CaptureScreen("Masuk Halaman Login", "Passed");
-                        inputUsername.SendKeys(username);
-                        Thread.Sleep(1000);
-                        inputPassword.SendKeys(password);
-                        Thread.Sleep(1000);
-                        LibPDF.CaptureScreen("Isi Field Username dan Password", "Done");
-                        if (btnMasuk.Displayed)
+                        menuStudies.Click();
+                        try
                         {
-                            btnMasuk.Click();
-                            Thread.Sleep(5000);
-
-                            // Jika Berhasil Login
-                            IWebElement dropdownUser = null;
-                            try
+                            IWebElement labelStudies = driver.FindElement(By.XPath(repoDashboard.labelStudies));
+                            IWebElement btnBackStudies = driver.FindElement(By.XPath(repoDashboard.btnBackStudies));
+                            IWebElement btnToogleStudies = driver.FindElement(By.XPath(repoDashboard.btnToogleStudies));
+                            if (labelStudies != null && btnBackStudies != null && btnToogleStudies != null)
                             {
-                                dropdownUser = driver.FindElement(By.XPath($"//div[@id='user-dropdown']/div[@id='user-option']/span[text()='{greet}']"));
-                            }
-                            catch (Exception) { }
-
-                            try
-                            {
-                                IWebElement usernamePasswordSalah = driver.FindElement(By.XPath("//div[@id='modal-error-message' and text()='Email atau password salah']"));
-                                IWebElement btnModalOK = driver.FindElement(By.XPath("//button[@class='col-xs-12 btn btn-tosca']"));
-                                if (usernamePasswordSalah.Displayed)
-                                {
-                                    LibPDF.CaptureScreen("Username atau Password Salah", "Failed");
-                                    btnModalOK.Click();
-                                    Environment.Exit(1);
-                                    driver.Quit();
-                                }
-                            }
-                            catch (Exception) { }
-
-                            if (dropdownUser != null)
-                            {
-                                LibPDF.CaptureScreen("Berhasil Login sebagai : " + greet, "Passed");
-                                Thread.Sleep(1000);
+                                LibPDF.CaptureScreen("Berhasil Masuk Menu Studies", "Passed");
                             }
                             else
                             {
-                                LibPDF.CaptureScreen("Gagal Login", "Failed");
-                                Environment.Exit(1);
+                                LibPDF.CaptureScreen("Gagal Masuk Menu Studies", "Failed");
                                 driver.Quit();
+                                LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                                Environment.Exit(1);
                             }
                         }
-                        else
+                        catch
                         {
-                            LibPDF.CaptureScreen("Button Submit Login tidak ada di page", "Failed");
-                            Environment.Exit(1);
+                            LibPDF.CaptureScreen("Object Pada Menu Studies Tidak Ditemukan", "Failed");
                             driver.Quit();
+                            LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                            Environment.Exit(1);
                         }
                     }
                     else
                     {
-                        LibPDF.CaptureScreen("Field Username dan Password tidak ada di page", "Failed");
-                        Environment.Exit(1);
+                        LibPDF.CaptureScreen("Menu Studies Tidak Muncul", "Failed");
                         driver.Quit();
+                        LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                        Environment.Exit(1);
                     }
                 }
                 else
                 {
-                    LibPDF.CaptureScreen("Tab Masuk tidak tampil di page", "Failed");
-                    Environment.Exit(1);
+                    LibPDF.CaptureScreen("Gagal Launching Aplikasi Gallery", "Failed");
                     driver.Quit();
+                    LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                    Environment.Exit(1);
                 }
             }
-            else
+            catch
             {
-                LibPDF.CaptureScreen("Gagal Masuk Travelio Page", "Failed");
-                Environment.Exit(1);
+                LibPDF.CaptureScreen("Object Pada Dashboard Tidak Ditemukan", "Failed");
                 driver.Quit();
+                LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                Environment.Exit(1);
             }
         }
 
-        public static void Logout()
+        //Akses Submenu
+        public static void AksesSubmenu(string submenu, string excelFilePath, string excelSheetName)
         {
-            IWebDriver driver = SingletonDriver.GetDriver();
+            //AndroidDriver driver = SingletonDriver.GetDriver();
             try
             {
-                IWebElement dropdown = driver.FindElement(By.Id("user-dropdown"));
-                dropdown.Click();
-                Thread.Sleep(2000);
-                IWebElement btnLogout = driver.FindElement(By.XPath("//a[@onclick='userLogout()']"));
-                if (btnLogout.Displayed)
+                IWebElement menuShrine = driver.FindElement(By.XPath(repoDashboard.menuShrine));
+                IWebElement menuContactProfile = driver.FindElement(By.XPath(repoDashboard.menuContactProfile));
+                IWebElement menuAnimation = driver.FindElement(By.XPath(repoDashboard.menuAnimation));
+                
+                switch(submenu)
                 {
-                    LibPDF.CaptureScreen("Klik Button Keluar Akun", "Done");
-                    btnLogout.Click();
-                    Thread.Sleep(5000);
-                    IWebElement btnLogin = driver.FindElement(By.XPath("//*[@id='loginBtn']"));
-                    if (btnLogin.Displayed)
-                    {
-                        LibPDF.CaptureScreen("Berhasil Logout", "Passed");
-                        driver.Quit();
-                    }
-                    else
-                    {
-                        LibPDF.CaptureScreen("Gagal Logout", "Failed");
-                        Environment.Exit(1);
-                        driver.Quit();
-                    }
+                    case "SHRINE" :
+                        menuShrine.Click();
+                        try
+                        {
+                            IWebElement imgShrine = driver.FindElement(By.XPath(repoDashboard.imgShrine));
+                            IWebElement btnBackShrine = driver.FindElement(By.XPath(repoDashboard.btnBackShrine));
+
+                            if(imgShrine != null && btnBackShrine != null)
+                            {
+                                LibPDF.CaptureScreen("Berhasil Masuk Submenu Shrine", "Passed");
+                            }
+                            else
+                            {
+                                LibPDF.CaptureScreen("Gagal Masuk Submenu Shrine", "Failed");
+                                driver.Quit();
+                                LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                                Environment.Exit(1);
+                            }
+                        }
+                        catch
+                        {
+                            LibPDF.CaptureScreen("Object Pada Submenu '" + submenu + "' Tidak Ditemukan", "Failed");
+                            driver.Quit();
+                            LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                            Environment.Exit(1);
+                        }
+                        break;
+
+                    case "CONTACT PROFILE":
+                        menuContactProfile.Click();
+                        break;
+
+                    case "ANIMATION":
+                        menuAnimation.Click();
+                        break;
+                }
+            }
+            catch
+            {
+                LibPDF.CaptureScreen("Object Pada Submenu '"+submenu+"' Tidak Ditemukan", "Failed");
+                driver.Quit();
+                LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                Environment.Exit(1);
+            }
+        }
+
+        //Login pada submenu Shrine
+        public static void LoginSubmenuShrine(string excelFilePath, string excelSheetName)
+        {
+            //AndroidDriver driver = SingletonDriver.GetDriver();
+            //string dtUsername = LibExcel.GetDataExcel(excelFilePath,"USERNAME",excelSheetName);
+            //string dtPassword = LibExcel.GetDataExcel(excelFilePath, "PASSWORD", excelSheetName);
+            try
+            {
+                //IWebElement fieldUsername = driver.FindElement(By.XPath(repoDashboard.fieldUsername));
+                //IWebElement fieldPassword = driver.FindElement(By.XPath(repoDashboard.fieldPassword));
+                IWebElement btnNext = driver.FindElement(By.XPath(repoDashboard.btnNext));
+
+                //if (fieldUsername != null && fieldPassword!= null && btnNext != null)
+                if (btnNext != null)
+                {
+                    //fieldUsername.Click();
+                    //fieldUsername.Clear();
+                    //driver.Navigate().Back();
+                    //fieldUsername.SendKeys("Test");
+                    //fieldPassword.Click();
+                    //fieldPassword.Clear();
+                    //driver.Navigate().Back();
+                    //fieldPassword.SendKeys("Test");
+                    //string inputanUsername = fieldUsername.GetAttribute("text");
+                    //string inputanPassword = fieldPassword.GetAttribute("text");
+                    //if (inputanUsername == dtUsername && inputanPassword == dtPassword)
+                    //{
+                    //    LibPDF.CaptureScreen("Isi Username dan Password", "Done");
+                        btnNext.Click();
+                        try
+                        {
+                            IWebElement labelShrine = driver.FindElement(By.XPath(repoDashboard.labelShrine));
+                            IWebElement btnSearchShrine = driver.FindElement(By.XPath(repoDashboard.btnSearchShrine));
+                            IWebElement btnFilterShrine = driver.FindElement(By.XPath(repoDashboard.btnFilterShrine));
+                            if (labelShrine != null && btnSearchShrine != null && btnFilterShrine != null)
+                            {
+                                LibPDF.CaptureScreen("Berhasil Masuk Halaman Produk Shrine", "Passed");
+                            }
+                            else
+                            {
+                                LibPDF.CaptureScreen("Gagal Masuk Halaman Produk Shrine", "Failed");
+                            }
+                        }
+                        catch
+                        {
+                            LibPDF.CaptureScreen("Object Pada Halaman Produk Shrine Tidak Ditemukan ", "Failed");
+                            driver.Quit();
+                            LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                            Environment.Exit(1);
+                        }
+                    //}
+                    //else
+                    //{
+                    //    LibPDF.CaptureScreen("Username dan Password Tidak Diisi", "Failed");
+                    //    Environment.Exit(1);
+                    //}
                 }
                 else
                 {
-                    LibPDF.CaptureScreen("Button Logout Tidak Muncul", "Failed");
-                    Environment.Exit(1);
+                    LibPDF.CaptureScreen("Object Pada Submenu Shrine Tidak Ditemukan ", "Failed");
                     driver.Quit();
+                    LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                    Environment.Exit(1);
                 }
             }
-            catch (Exception)
+            catch
             {
-                LibPDF.CaptureScreen("Dropdown User Tidak Muncul", "Failed");
-                Environment.Exit(1);
+                LibPDF.CaptureScreen("Object Pada Submenu Shrine Tidak Ditemukan ", "Failed");
                 driver.Quit();
+                LibPDF.GeneratePDF(excelFilePath, excelSheetName);
+                Environment.Exit(1);
             }
         }
 
-        //Masuk Menu Studies
-        public static void AksesMenuStudies()
+        //Add to cart
+        public static void AddtoCart()
         {
-            AndroidDriver driver = SingletonDriver.GetDriver();
-            try
+            
+            int maxSwipes = 15;
+            //bool elementPresent = false;
+
+            for (int i = 0; i < maxSwipes; i++)
             {
-                IWebElement menuStudies = driver.FindElement(By.XPath("//android.widget.Button[@text='Studies']"));
-                if (menuStudies != null)
+                try
                 {
-                    LibPDF.CaptureScreen("Berhasil Launching Aplikasi Gallery", "Passed");
-                    menuStudies.Click();
-                    Thread.Sleep(1000);
-                    IWebElement lebelStudies = driver.FindElement(By.XPath("(//android.view.View[@text='Studies'])[1]"));
-                    if (lebelStudies != null)
+                    // Cek apakah elemen hadir
+                    IWebElement productItem = driver.FindElement(By.XPath(repoDashboard.productItem));
+                    if (productItem.Displayed)
                     {
-                        LibPDF.CaptureScreen("Berhasil Masuk Menu Studies","Passed");
+                        string namaProduct = productItem.GetAttribute("text");
+                        LibPDF.CaptureScreen("Berikut Product Item : "+namaProduct, "Done");
+                        break;
                     }
                 }
+                catch (NoSuchElementException)
+                {
+                    SwipeLeft();
+                }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error during test execution: {e.Message}");
-            }
+
+            //if (!elementPresent)
+            //{
+            //    LibPDF.CaptureScreen("Product Item Tidak Ditemukan", "Failed");
+            //    //Environment.Exit(1);
+            //}
+        }
+
+        static void SwipeLeft()
+        {
+            var size = driver.Manage().Window.Size;
+            int startX = (int)(size.Width * 0.9); // Mulai dari 90% dari lebar layar
+            int endX = (int)(size.Width * 0.1); // Akhiri di 10% dari lebar layar
+            int y = size.Height / 2; // Posisi vertikal tengah layar
+
+            var touchAction = new TouchAction(driver);
+            touchAction
+                .Press(startX, y)
+                //.Wait(1000)
+                .MoveTo(endX, y)
+                .Release()
+                .Perform();
         }
     }
 }

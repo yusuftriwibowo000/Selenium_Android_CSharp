@@ -6738,11 +6738,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\HP\\Documents\\MobileTesting2\\MobileTesting2.csproj",
+      "projectUniqueName": "C:\\Users\\HP\\Documents\\Selenium_Android_CSharp\\MobileTesting2.csproj",
       "projectName": "MobileTesting2",
-      "projectPath": "C:\\Users\\HP\\Documents\\MobileTesting2\\MobileTesting2.csproj",
+      "projectPath": "C:\\Users\\HP\\Documents\\Selenium_Android_CSharp\\MobileTesting2.csproj",
       "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\HP\\Documents\\MobileTesting2\\obj\\",
+      "outputPath": "C:\\Users\\HP\\Documents\\Selenium_Android_CSharp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",

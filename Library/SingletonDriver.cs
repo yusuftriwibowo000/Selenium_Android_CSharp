@@ -20,11 +20,14 @@ namespace SeleniumNew
 
                 // Desired Capabilities
                 AppiumOptions options = new AppiumOptions();
-                options.AddAdditionalAppiumOption(MobileCapabilityType.PlatformName, "Android");
+                //options.AddAdditionalAppiumOption(MobileCapabilityType.PlatformName, "Android");
+                options.PlatformName = "Android";
                 options.DeviceName = "1319da2d";
                 options.App = pathApp;
+                options.AutomationName = "UiAutomator2";
                 options.AddAdditionalAppiumOption("appPackage", "io.flutter.demo.gallery");
                 options.AddAdditionalAppiumOption("appActivity", "io.flutter.demo.gallery.MainActivity");
+                options.AddAdditionalAppiumOption("noReset", true);
 
                 // Initialize the driver
                 driver = new AndroidDriver(new Uri("http://localhost:4723/wd/hub"), options);
